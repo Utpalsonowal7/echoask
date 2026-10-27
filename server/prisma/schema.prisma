@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String             @id @default(cuid())
+  name            String             @db.VarChar(60)
+  email           String             @unique @db.VarChar(254)
+  username        String             @unique @db.VarChar(24)
+  passwordHash    String
+  bio             String             @default("") @db.VarChar(160)
+  acceptsMessages Boolean            @default(true)
+  emailVerifiedAt DateTime?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  messages        Message[]
+  sessions        Session[]
+  verificationCodes VerificationCode[]
+
+  @@index([createdAt])
+}
+
+model VerificationCode {
+  id        String   @id @default(cuid())
+  userId    String
+  codeHash  String
+  attempts  Int      @default(0)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+}
+
+model Message {
+  id          String   @id @default(cuid())
+  recipientId String
+  senderAlias String?  @db.VarChar(40)
+  content     String   @db.VarChar(1000)
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  recipient   User     @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+
+  @@index([recipientId, createdAt])
+  @@index([recipientId, isRead])
+}
+
