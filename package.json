@@ -1,0 +1,25 @@
+{
+  "name": "echoask",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Anonymous messages, thoughtfully delivered.",
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "concurrently -k -n api,web -c cyan,magenta \"npm --workspace server run dev\" \"npm --workspace client run dev\"",
+    "build": "npm --workspace server run build && npm --workspace client run build",
+    "db:generate": "npm --workspace server run db:generate",
+    "db:migrate": "npm --workspace server run db:migrate",
+    "db:studio": "npm --workspace server run db:studio"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "typescript": "^5.8.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
+
